@@ -1,0 +1,25 @@
+% Questions people might ask:
+%
+% How many countries are the data from? Histogram of total gage sites together
+% with number of countries.
+%
+% 2 options
+%   1. Paper on the fact that this data exists -- dataset descriptor type thing
+%   2. Analysis of that dataset to the extent possible given privacy related
+%      constraints
+%
+% Sources: How many of the locations provided
+%
+% Number of locations with a GeoGlows ID paired to it.
+%
+% Places where we have multiple gages within one segment (we keep the
+% downstream-most gage, usually)
+%
+% Places where we have no GEOGLOWS stream reach for a gage. (QUESTION: Who does
+% have a model for that location? (e.g., does GloFAS or Flood Hub include that
+% number of gages?)
+%
+% Temporal scale of the data (tables already produced)
+% How many gages do we know about that are not in our database (e.g., China,
+% Russia, Nile, the stans, Indus, Tigris, Euphrates, Parana
+% ALASKA?

@@ -1,0 +1,98 @@
+\subsection{Data providers}
+
+\draftnote{Describe who gave us the data. National agencies? International groups? What kind of national agency is it (hydrology group, met group, emergency management group)? How did we find them>}
+
+\draftnote{Do we want to take about water level data vs flow data at all?}
+
+% [Word comment] Who to put here?
+Our data sources include official country-specific APIs, national web portals, collaborative international platforms/initiative (such as GRDC and ArcticNet), and exclusive datasets provided for us for specific research projects. The following table details the providers from which data was collected as well as the approximate spatial coverage of the dataset.
+
+\begin{table}[!htbp]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{0.95}
+\caption{Data Providers and Spatial Coverage}
+\label{tab:providers}
+\begin{tabular}{@{}L{0.64\textwidth}L{0.30\textwidth}@{}}
+\toprule
+\textbf{Name} & \textbf{Coverage} \\
+\midrule
+ANA (Agência Nacional de Águas) & Brazil \\
+Bangladesh & Bangladesh \\
+Belize & Belize \\
+Bhutan & Bhutan \\
+BoM (Bureau of Meteorology) & Australia \\
+Caravan (derived from CAMELS) & Global / Multi-country dataset \\
+CEDEX (Centro de Estudios y Experimentación de Obras Públicas) & Spain \\
+DHM (Department of Hydrology and Meteorology) & Nepal \\
+EA (Environment Agency) & Europe \\
+Eaufrance (public water information service) & France \\
+ENEE (Empresa Nacional de Energía Eléctrica) & Honduras \\
+Ethiopia & Ethiopia \\
+GRDC (Global Runoff Data Centre) & Global \\
+HYDAT (Hydrometric Data) & Canada \\
+IDEAM (Instituto de Hidrología, Meteorología y Estudios Ambientales) & Colombia \\
+IMHPA (Instituto de Meteorología e Hidrología de Panamá) & Panama \\
+INAMEH (Instituto Nacional de Meteorología e Hidrología) & Venezuela \\
+INAMHI (Instituto Nacional de Meteorología e Hidrología) & Ecuador \\
+India-WRIS (Water Resources Information System) & India \\
+INDRHI (Instituto Nacional de Recursos Hidráulicos) & Dominican Republic \\
+Israel Meteorological Service & Israel \\
+Ivory Coast & Ivory Coast \\
+Kenya & Kenya \\
+Malawi & Malawi \\
+Paraguay & Paraguay \\
+SENAMHI (Servicio Nacional de Meteorología e Hidrología) & Peru \\
+SERVIR Mekong & Mekong Region (Southeast Asia) \\
+SHI (State Hydrological Institute) & Russia \\
+SIH (Sistema de Información Hidrológica) & Mexico \\
+Somalia & Somalia \\
+Tanzania & Tanzania \\
+USGS (U.S. Geological Survey) & USA \\
+RWB (Rwanda Water Resources Board) & Rwanda \\
+DGRE (Direction Générale des Ressources en Eau) & Togo \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Collecting data}
+% [Word comment] I am unaware of where the scripts used to do this are, or if
+% there is a list of all providers from Jorge
+
+\draftnote{Data formats, different APIs, this could also be where we talk about barriers in the collection process - Could answer the part of the thesis where we talk instructions for how someone could repeat our processes?}
+
+We saw two types of organizational structures of data management. The first data-organization style had all associated metadata available in the individual timeseries files. These were typically obtained through API queries. The second data-organization style involved two separate data streams. The first data stream were the files containing time series measurements for each gauge, and the second was a single file containing metadata for all stations. Real-time sub-daily data is generally accessible through API interfaces rather than static downloads.
+
+Despite source diversity, core metadata elements include gauge identification number, station name, river name, geographic coordinates (latitude and longitude), and time series measurements. Supplementary metadata varies like administrative divisions of country, collecting organizations within country, station elevation, hydrological classification, municipality information, station start dates, API end points, quality indicators, and distance to outlet.
+
+% [Word comment] (on the elevation sentence) Should we still do this? Why?
+% [Word comment] (on the climate classification sentence) Are these still
+% included in the metadata that we store? If so, I need to make sure I re-do
+% the koppen figures to match this.
+% [Word comment] (on the climate classification sentence) I have some things to
+% say to this in our meeting. I've uploaded a new metadata table with more
+% variables
+For further analysis on all gauges, we standardized the metadata. For stations lacking elevation data, we derived values by averaging NASADEM and ALOS DSM measurements. Missing administrative divisions were populated through reverse geocoding via geonames.org. Climate classifications which were not present in any of the metadata and were filled using Koppen climate classifications. They were extracted from published raster datasets based on present conditions [cite that nature paper]. Portions of the gauge were provided with GEOGLOWS V2 river IDs. We further calculated analytical metadata including temporal availability, observation completeness). Gauges were designated as ``active'' if their last available date matches the date of extraction, meaning that we assumed they are still active.
+
+For quality assurance processes, we standardized the missing data across all sources using a uniform identifier (NaN). This standardization presented significant challenges due to the heterogeneous representation of missing values among different and same sources including ``0'', \mbox{``-''}, \mbox{``-9999''}, and simply blank. This identification proved particularly complex in river on arid regions or small Strahler order, where legitimate zero flow measurements could be misinterpreted as missing data. Also, in same sources multiple missing data indicators within single datasets were found to be used like ``0'' and \mbox{``-''}. Stations with missing geographic coordinates required additional research either through source web portals if available or from literature review on published journal.
+
+\subsection{Organizing measurements}
+
+% [Word comment] i think yes lets do that here
+\draftnote{Do we still want to publish the metadata table? If so, this is where we could describe it. Data formats we store it in and why, how up to date things are}
+
+Data is stored on an AWS S3 bucket, divided into two main sections: sources, and production data. For every gauge, it is partitioned into a group matching the country it came from and the data provider. The sources contain the raw data files that we collected. For our production section, we have three primary items for each country-provider group: a catalog.csv, sites.gpkg, and a measurements directory.
+
+The catalog csv has these columns: gauge\_id, latitude, longitude, river\_name, final\_river\_id, discharge, and water\_level . A description of each follows\ldots
+
+The sites.gpkg is simply the catalog csv converted to a spatial format. This format allows for easy geopspatial analysis.
+
+The measurements directory contains one CSV for each gauge, containing 2-3 columns: datetime, discharge (optional), and water\_level (optional)\ldots{} Description\ldots.
+
+A master catalog was created to anaylze the total metadata of all the gauges. This catalog contains additional information collected by previous graduate and post-doc students, and here is a description\ldots.
+
+\subsection{Disseminating / Barriers to access}
+
+The primary barrier to global river gauge data access lies not in its data availability but in the fragmented nature of information about these resources. Numerous countries provide unrestricted hydrological observations, yet awareness of those information remains limited. For instance, Spain and Mexico offer readily downloadable datasets without API requirements, but the hosting platforms lack visibility and not many know about its existence. A secondary barrier involves the technical expertise required to understand API endpoints and programming. While manual downloads are enough for isolated stations to study small areas, programmatic approaches become essential when managing thousands of continuously updating gauges across the country. To address these challenges, we have developed country-specific GitHub repositories containing code examples and documentation to facilitate streamlined data access. (???)
+
+% ===========================================================================

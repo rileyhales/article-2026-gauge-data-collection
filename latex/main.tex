@@ -1,0 +1,71 @@
+\documentclass[preprint,12pt,authoryear]{elsarticle}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage[hidelinks]{hyperref}
+\usepackage{citation-style-language}
+
+\journal{MDPI Data}
+
+\begin{document}
+
+\begin{frontmatter}
+
+\title{A Global Archive of River Gauges for Large-Scale Hydrologic Exploration}
+
+    \author[a]{Riley Hales}
+    \corref{cor1}
+    \affiliation[a]{organization={Brigham Young University}, city={Provo, Utah}, country={United States of America}}
+    \cortext[cor1]{Corresponding author: Riley Hales, \href{mailto:rchales@byu.edu}}
+
+    \begin{abstract}
+    \end{abstract}
+
+\end{frontmatter}
+
+\section{Introduction}
+\label{sec:introduction}
+
+\section{Building the dataset}
+\label{sec:building-the-dataset}
+\input{2_building}
+
+\section{Analysis of the collected data}
+\label{sec:analysis-of-the-collected-data}
+\input{3_analysis}
+
+\section{Discussion}
+\label{sec:discussion}
+
+Analysis that is possible because of this broader dataset.
+
+Things that have been accomplished because the data are where they are.
+
+\begin{itemize}
+\item Talk about RFS Bias Correction impact here AS AN EXAMPLE. NWM as an example.
+\item Show the Yubin's togo example showing that the global bias correction benefits from nearby gages\ldots{} leading into\ldots
+\end{itemize}
+
+Things that COULD be accomplished with this broader dataset (drawing on examples that already use large datasets
+
+\begin{itemize}
+\item Hydro SOS from WMO
+\item GloFAS (uses same forcing as GeoGlows\ldots{} could expand)
+\end{itemize}
+
+Things that are significant impacts because of the gaps. Vulnerability/social issues/resilience.
+
+Why the gaps.
+
+How might they be resolved? (can we address that?)
+
+% ===========================================================================
+\section{Conclusion}
+\label{sec:conclusion}
+
+\bibliographystyle{elsarticle-harv}
+\bibliography{references}
+
+\end{document}
