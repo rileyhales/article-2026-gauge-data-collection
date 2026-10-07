@@ -36,6 +36,8 @@ COLORS = {
 GAUGED_COLOR = 'lightgray'
 NO_DATA_COLOR = '#f7f7f7'
 NO_DATA_HATCH = '////'
+CLASSIFICATION_YEAR = 'FY2027'
+NEXT_RECLASSIFICATION = date(2027, 7, 1)
 
 
 def fetch_wb_income_groups():
@@ -59,6 +61,10 @@ def draw(ax, geoms, **kwargs):
     ax.add_geometries(pieces, crs=ccrs.PlateCarree(), linewidth=0.3, **kwargs)
 
 
+if date.today() >= NEXT_RECLASSIFICATION:
+    print(f"WARNING: the World Bank reclassifies every 1 July. The API has probably moved past "
+          f"{CLASSIFICATION_YEAR}; update tab:gni-categories in the paper to match.\n")
+
 gauges = pd.read_csv(DATA_DIR / "master_catalog_with_metadata.csv", low_memory=False)
 countries = gpd.read_file(DATA_DIR / "country_shapefile" / "WB_GAD_ADM0.shp")
 
@@ -74,7 +80,7 @@ income = fetch_wb_income_groups()
 no_gauges['income_group'] = no_gauges['ISO_A3'].map(income)
 no_gauges.loc[~no_gauges['income_group'].isin(COLORS), 'income_group'] = 'No data'
 
-print(f"Income classification retrieved: {date.today().isoformat()}")
+print(f"Income classification retrieved: {date.today().isoformat()} ({CLASSIFICATION_YEAR})")
 print(f"Countries and territories with no gauges: {len(no_gauges)}")
 for group in [*COLORS, 'No data']:
     print(f"  {group}: {(no_gauges['income_group'] == group).sum()}")
