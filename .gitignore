@@ -1,2 +1,7 @@
 out/
-gauge_tables/
+gauge_tables
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.synctex.gz
