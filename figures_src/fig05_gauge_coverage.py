@@ -1,6 +1,6 @@
 """Figure 5: land area upstream of at least one gauge.
 
-Reads:  data/fig05_watersheds.parquet   (made by fig05_prepare_watersheds.py)
+Reads:  out/fig05_watersheds.parquet    (made by fig05_prepare_watersheds.py; kept local, out of the repo)
 Writes: latex/figures/fig05_gauge_coverage.png
 """
 from pathlib import Path
@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 from shapely.geometry import box
 
 REPO_DIR = Path(__file__).resolve().parent.parent
-WATERSHEDS = REPO_DIR / "data" / "fig05_watersheds.parquet"
+WATERSHEDS = REPO_DIR / "out" / "fig05_watersheds.parquet"
 OUTPUT = REPO_DIR / "latex" / "figures" / "fig05_gauge_coverage.png"
 
 

@@ -5,3 +5,4 @@ gauge_tables
 *.fls
 *.log
 *.synctex.gz
+__pycache__/

@@ -2,16 +2,33 @@
 
 Issues found in `master_catalog_with_metadata.csv` (37,528 rows, checked 2026-10-06).
 
+## ⚠️ Metadata columns belong to the wrong gauge (93% of rows that have them)
+- In 16,669 of 17,928 rows, `samplingFeatureCode` is a different station than the row's own gauge
+  (`excel_Gauge Name/Number` = `jorge_samplingFeatureCode`, which always agree). All providers:
+  100% wrong except GRDC (69%). Likely the metadata was joined on the wrong key or by row order.
+- Example: row for USGS 01112500 Blackstone River at Woonsocket, RI (coordinates match) has the
+  metadata of 01087000 Blackwater River near Webster, NH.
+- Affected columns: `samplingFeatureCode`, `name`, `River`, `elevation_m`, `county`, `country_name`,
+  `country_id`, `samplingFeatureType`, `siteType`, `elevationDatum`, `description`, `dataDisclaimer`,
+  `isVisible`, `GEOGloWS_v1_region`, `GEOGloWS_v2_vpu`, `matching_column_v2`.
+- Probably not affected (also filled in rows without metadata, so from another source):
+  coordinates, `discharge`, `water_level`, `final_river_id`, `ISO_A3`, `start_date`, `end_date`.
+
 ## Missing coordinates
 - 1,760 gauges have no latitude/longitude, so they cannot appear on maps.
   Mexico 1,565 · India 170 · Bhutan 12 · Afghanistan 4 · UK 4 · China 2 · Nepal, Russia, USA 1 each
 - All of them still have an ISO_A3 code, so they are counted in per-country analyses.
 
-## Possible duplicates
-- No identical rows; `hash` is unique.
-- `gauge_id` is NOT unique: 473 IDs are reused by different gauges in different countries.
-- 367 extra rows share the same coordinates and name with another row (mostly USA).
-  Examples: Rwanda "Nyundo" (196501, 196501_1, 196501_2); Togo "Koumongou" (two copies).
+## Duplicates: Caravan copies of agency gauges (kept for now, pending discussion)
+- 4,056 Caravan rows are copies of a gauge already in the catalog from the national agency
+  (the Caravan ID contains the agency ID, e.g. `hysets_06091700` = USGS `06091700`):
+  USGS 3,265 · HYDAT 470 · BoM 119 · ANA 71.
+- Without them: 33,472 gauges instead of 37,528 (USA 8,504 instead of 11,806; Canada 2,623
+  instead of 3,089). Would change the counts in the text, Figure 1 legend, Figure 4 and income table.
+- Other checks: no identical rows (`hash` is unique); `gauge_id` is not unique (473 IDs reused by
+  different gauges in different countries); 2,786 extra rows share coordinates and name with
+  another row, mostly these Caravan copies. (An earlier count of 367 used the `name` column,
+  which belongs to the wrong gauge in most rows.)
 
 ## Shared locations
 - 3,040 locations (rounded to 5 decimal places) are shared by more than one gauge,
@@ -49,6 +66,8 @@ Issues found in `master_catalog_with_metadata.csv` (37,528 rows, checked 2026-10
 ## Gauges not matched to a river
 - 11,834 gauges (32%) have `final_river_id` = -1 (11,639) or 0 (195), meaning they were not
   matched to a GEOGLOWS v2 river. They cannot contribute to the watershed coverage in Figure 5.
+- ~3,640 of them are copies of a gauge that IS matched (3,521 Caravan copies of agency gauges, plus
+  117 same-name, same-location copies: CEDEX 55, EA 37, SIH 17, …). So ~8,200 are genuinely unmatched.
 - The older `master_catalog.csv` (used for the original Figure 5) had 8,417 unmatched.
 - Most affected: USA 4,302 (36% of its gauges) · UK 2,401 (67%) · Mexico 2,272 (79%) ·
   France 1,267 (30%) · India 712 (75%) · Canada 368 (12%) · Spain 175 (11%).
@@ -56,10 +75,41 @@ Issues found in `master_catalog_with_metadata.csv` (37,528 rows, checked 2026-10
   have gauges in a couple spots that aren't showing."
 - Need to find out why these were not matched (and who did the matching).
 
+## Translating gauge river IDs from v2 to v3 (Figure 5)
+`final_river_id` holds GEOGLOWS **v2** river IDs; Figure 5 now uses the **v3** hydrography
+(see Decisions). Checked 2026-10-07:
+- 24,405 gauged v2 rivers (25,694 gauges). **20,250 have the same ID in v3**, and where IDs match
+  the upstream areas agree within 5%, so they are the same rivers.
+- 7 gauged rivers are not in the v2 network at all → left out.
+- 4,148 rivers (4,331 gauges) were changed by the v3 edits recorded in each region's `mods/` folder:
+  - **3,509 rivers (3,660 gauges): short reach merged into a neighbour** (`short_consolidations`)
+    → mapped to the river it was merged into. Upstream area +2% (median); 156 over +25%, 7 over 2×.
+  - **147 rivers (154 gauges): reach inside a lake** (`lake_edits`). v3 deletes in-lake reaches and
+    turns each lake into one outlet river with its inlets flowing straight into it. All 154 are
+    discharge gauges (none lake-level only); mostly Canada (104) and USA (23), e.g. Great Lakes.
+    - 12 gauges with **all** the lake's inlets upstream (≈ at the outlet, ~5 km away)
+      → mapped to the lake outlet.
+    - 77 gauges with **some** inlets upstream (~3 km from an inlet, ~83 km from the outlet)
+      → mapped to those inlets (their own river where it enters the lake).
+    - 65 gauges with **no** inlets upstream (small rivers whose whole reach v3 absorbed into the lake)
+      → **left out**. Mapping them to the outlet would claim ~8,000× their area (median).
+      Example: Welland River near Binbrook → outlet would be 10,000× its own area.
+  - 1 river (1 gauge): pruned side branch (`branches_to_prune`) → **left out**.
+  - **491 rivers (516 gauges): in no edit file; their whole basin is missing from v3** → **left out**.
+    For 434 of the 516 gauges there is no v3 river within ~5 km. Mostly small coastal basins
+    (median 101 km²) in Canada, France, UK, USA, Spain, Chile, but also two large inland basins in
+    Australia's Lake Eyre region (226,772 and 108,737 km²) and three large northern Quebec rivers
+    (49,000–110,000 km²), which will show as gaps in Figure 5.
+- **In total 589 gauges (561 rivers) are left out of Figure 5**, 2.3% of the 25,694 gauges matched
+  to a river: 516 basin not in v3 · 65 absorbed into a lake · 7 river not in the v2 network ·
+  1 pruned branch. Used: 21,356 same id · 3,660 merged reach · 77 lake inlets · 12 lake outlet.
+- The translation is written by `figures_src/fig05_translate_river_ids.py` to
+  `out/fig05_river_translation.csv` (one row per gauged river and v3 river, with the reason).
+  It is kept out of the repo (`out/` is gitignored) because the river IDs show where the gauges
+  are, including private ones; anyone building Figure 5 regenerates it with that script.
+
 ## Other data quality issues
 - 3 rows have Vietnamese province names in ISO_A3 instead of `VNM`.
-- Some USGS rows have `name` and `excel_Station_name` pointing to different rivers
-  (e.g. gauge_id 1112500: "Blackwater River near Webster - NH" vs "Blackstone River at Woonsocket - RI").
 
 ## Decisions
 - All gauges are used throughout the paper (no PublicFree filter).
@@ -104,12 +154,24 @@ Issues found in `master_catalog_with_metadata.csv` (37,528 rows, checked 2026-10
   X. Jiang, A.I.J.M. van Dijk, D.G. Miralles. High-resolution (1 km) Köppen-Geiger maps for
   1901–2099 based on constrained CMIP6 projections, Scientific Data 10, 724,
   doi:10.1038/s41597-023-02549-6 (2023).
-- Figure 5 uses the current catalog's `final_river_id` and the GEOGLOWS v2 river network
-  (`v2-model-table.parquet` + `hydrography/` catchments, local copy in `../gauge-paper`).
-  An area is covered if any gauge is downstream of it. A ~1 km simplified copy of the result
-  is kept in the repo (`data/fig05_watersheds.parquet`) so the map can be redrawn without
-  the 34 GB hydrography.
-
+- Figure 5 uses the **RFS / GEOGLOWS v3 hydrography** (switched from v2 on 2026-10-07; faster,
+  smaller, and complete where v2 was not).
+  - Source: public S3 bucket `river-forecast-system-v3` (us-west-2), folder `hydrography/`,
+    published 2026-09-26. Browse at https://v3.s3.riverforecastsystem.com/#hydrography/
+  - Local copy (7.8 GB, sizes checked against the bucket): `../gauge-paper/hydrography_v3/`
+    with `global/metadata.parquet` (river network), `region=<id>/catchments_<id>.geo.parquet`
+    (47 regions, stored in Web Mercator) and `region=<id>/mods/*.json` (edits relative to v2).
+  - Everything upstream of a river = rows with `riverIndex` from `riverIndex − upstreamCount`
+    to `riverIndex` (`upstreamCount` excludes the river itself). Checked against a full
+    network walk for 200 rivers.
+  - An area is covered if any gauge is downstream of it. Catchments are merged per region in chunks
+    of 25,000 neighbouring catchments (to keep memory down), then the chunk outlines are merged.
+    Each chunk uses the fast "coverage" merge (repaired with `make_valid(method='structure')`),
+    falling back to the standard merge where catchment edges don't line up exactly (v3 is not
+    perfectly clean everywhere). 
+  - Gauge river IDs are translated from v2 to v3 first (see "Translating gauge river IDs").
+  - A ~1 km simplified copy of the result (`out/fig05_watersheds.parquet`) is what the map is
+    drawn from. 
 ## Paper text and tables to update
 Because of the decisions above (all gauges, corrected areas, official income classification):
 - `3_analysis.tex` line 6: "data from 135 countries" -> now 131.
@@ -126,7 +188,8 @@ Because of the decisions above (all gauges, corrected areas, official income cla
   e.g. FY2027). They are fetched live and the World Bank updates them every July;
   between the Feb 2026 CSV and the live API (Oct 2026), Micronesia, Jordan, and
   Sri Lanka moved from lower middle to upper middle income.
-- Cite Beck et al. (2023) for the Köppen classes (not yet in `references.bib`).
+- Cite Beck et al. (2023) for the Köppen classes: added to `references.bib` as `beck2023`;
+  still needs `\cite{beck2023}` in the text.
 - `3_analysis.tex` line 78: "temperate ... despite being the smallest percentage of land area"
   is based on the old notebook, which measured area in degrees (inflating polar to 36%).
   Rechecked with the corrected Figure 4: the claim HOLDS (temperate 50.2% of gauges,
@@ -142,7 +205,11 @@ Because of the decisions above (all gauges, corrected areas, official income cla
   gauges were matched to rivers and that unmatched gauges are excluded.
 - `3_analysis.tex` after Figure 5: "The map highlights" is unfinished. Use the coverage %
   printed by `fig05_prepare_watersheds.py` (% of all land and % excluding Antarctica).
-- Figure 5: says matched to "RFS streams"; name the network (GEOGLOWS v2) and cite it.
+- Figure 5: says matched to "RFS streams"; name the hydrography (RFS / GEOGLOWS v3) and cite it.
+  Methods should explain that gauges were matched to v2 rivers and translated to v3, and that
+  589 gauges were left out (basins not in v3, reaches absorbed into lakes, rivers not in the
+  v2 network, a pruned branch).
+  Figure 5 will show gaps in the Lake Eyre basin (Australia) and northern Quebec.
 - `3_analysis.tex` lines 74–75 (Word comment) and `2_building.tex` lines 69–75: the old
   Figure 4 did NOT use the same Köppen source as the methods section describes. Methods
   text needs to match the Beck et al. (2023) approach.
