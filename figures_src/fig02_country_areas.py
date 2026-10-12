@@ -1,4 +1,4 @@
-"""Figure 2: distribution of the areas of countries and territories with no gauges.
+"""Figure 2: distribution of the areas of countries and territories with and without gauges.
 
 Reads:  <GAUGE_DATA_DIR>/master_catalog_with_metadata.csv
         <GAUGE_DATA_DIR>/country_shapefile/WB_GAD_ADM0.shp
@@ -53,19 +53,22 @@ countries = gpd.read_file(DATA_DIR / "country_shapefile" / "WB_GAD_ADM0.shp")
 # --- One row per country/territory (some are split across several polygons) ---
 countries = countries.dissolve(by='ISO_A3', as_index=False)
 
-# --- Countries and territories with no gauges ---
+# --- Countries and territories with and without gauges ---
 iso_with_gauges = set(gauges['ISO_A3'].dropna())
-no_gauges = countries[~countries['ISO_A3'].isin(iso_with_gauges)].copy()
+countries['has_gauges'] = countries['ISO_A3'].isin(iso_with_gauges)
 
 # --- Area: World Bank land area, falling back to the polygon area ---
 wb_area = fetch_wb_land_area()
-no_gauges['area_km2'] = no_gauges['ISO_A3'].map(wb_area)
-from_shapefile = no_gauges['area_km2'].isna()
-no_gauges.loc[from_shapefile, 'area_km2'] = (
-    no_gauges.loc[from_shapefile, 'geometry'].apply(equal_area_km2)
+countries['area_km2'] = countries['ISO_A3'].map(wb_area)
+missing_area = countries['area_km2'].isna()
+countries.loc[missing_area, 'area_km2'] = (
+    countries.loc[missing_area, 'geometry'].apply(equal_area_km2)
 )
+no_gauges = countries[~countries['has_gauges']]
+from_shapefile = missing_area[~countries['has_gauges']]
 
 print(f"Countries and territories: {len(countries)}")
+print(f"With gauges: {countries['has_gauges'].sum()}")
 print(f"With no gauges: {len(no_gauges)}")
 print(f"  Area from World Bank: {(~from_shapefile).sum()}")
 print(f"  Area from shapefile: {from_shapefile.sum()}")
@@ -74,17 +77,35 @@ print(f"  Smaller than Rhode Island ({RHODE_ISLAND_KM2:,} km²): "
       f"{(no_gauges['area_km2'] < RHODE_ISLAND_KM2).sum()}")
 
 # --- Drop non-positive values ---
-areas = no_gauges['area_km2']
-areas = areas[areas > 0]
+countries = countries[countries['area_km2'] > 0]
+areas_without = countries.loc[~countries['has_gauges'], 'area_km2']
+areas_with = countries.loc[countries['has_gauges'], 'area_km2']
 
-# --- Create logarithmic bins ---
-log_bins = np.logspace(np.log10(areas.min()), np.log10(areas.max()), 30)
+# --- Logarithmic bins spanning both groups ---
+log_bins = np.logspace(np.log10(countries['area_km2'].min()),
+                       np.log10(countries['area_km2'].max()), 30)
+counts_without, _ = np.histogram(areas_without, log_bins)
+counts_with, _ = np.histogram(areas_with, log_bins)
 
-plt.figure(figsize=(10, 6))
-plt.hist(areas, bins=log_bins, edgecolor='white', linewidth=0.5)
-plt.xscale('log')
-plt.xlabel("Area (km², log scale)")
-plt.ylabel("Number of Countries and Territories")
+# --- Side-by-side bars: each bin split in half (in log space), with a small gap at each edge ---
+log_left, log_right = np.log10(log_bins[:-1]), np.log10(log_bins[1:])
+log_width = log_right - log_left
+bar_start = 10 ** (log_left + 0.05 * log_width)
+bar_middle = 10 ** (log_left + 0.5 * log_width)
+bar_end = 10 ** (log_left + 0.95 * log_width)
+
+fig, ax = plt.subplots(figsize=(10, 6))
+ax.bar(bar_start, counts_without, width=bar_middle - bar_start, align='edge',
+       color='#2a78d6', label=f"No gauges ({len(areas_without)})")
+ax.bar(bar_middle, counts_with, width=bar_end - bar_middle, align='edge',
+       color='#eb6834', label=f"With gauges ({len(areas_with)})")
+ax.set_xscale('log')
+ax.set_xlabel("Area (km², log scale)")
+ax.set_ylabel("Number of Countries and Territories")
+ax.legend(frameon=False)
+ax.spines[['top', 'right']].set_visible(False)
+ax.grid(axis='y', color='#e1e0d9', linewidth=0.6)
+ax.set_axisbelow(True)
 
 plt.savefig(OUTPUT, dpi=300, bbox_inches='tight')
 print(f"Saved {OUTPUT}")

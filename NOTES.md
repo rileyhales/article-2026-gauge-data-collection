@@ -50,6 +50,9 @@ Issues found in `master_catalog_with_metadata.csv` (37,528 rows, checked 2026-10
     Tropical 4,528 · Polar 68); 2,050 missing (1,760 without coordinates + 290 others).
   - Disagrees with the old Figure 4 notebook (e.g. polar 68 vs 327).
   - Not produced by `2b_koppen_tdxhydro.py` (that labels TDX-Hydro catchments, not gauges).
+- **When was the gauge data collected?** Need the date the catalog was assembled (and/or the
+  date range of each source) to compare with the World Bank data year (FY2027 groups, based on
+  2025 GNI per capita).
 
 ## Gauges in the ocean
 - 145 gauges are more than ~5 km from any land pixel in the Köppen map, so they are left out of
