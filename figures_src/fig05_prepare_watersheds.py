@@ -3,10 +3,11 @@
 Reads:  out/fig05_river_translation.csv                    (from fig05_translate_river_ids.py)
         <GEOGLOWS_V3_DIR>/global/metadata.parquet          v3 river network
         <GEOGLOWS_V3_DIR>/region=<id>/catchments_<id>.geo.parquet
-        data/koppen_geiger/1991_2020/koppen_geiger_0p00833333.tif   (total land area for coverage %)
+        <GAUGE_DATA_DIR>/koppen_geiger/1991_2020/koppen_geiger_0p00833333.tif   (total land area for coverage %)
 Writes: out/fig05_watersheds.parquet                 simplified to ~1 km (kept local, out of the repo)
         out/fig05_watersheds_v3/region_<id>.parquet   full detail, local only
 
+GAUGE_DATA_DIR defaults to the repo's gauge_tables/ folder.
 GEOGLOWS_V3_DIR defaults to ../gauge-paper/hydrography_v3 (RFS / GEOGLOWS v3 hydrography).
 
 An area counts as covered if any gauge is downstream of it. The v3 network is ordered so that
@@ -34,9 +35,10 @@ from rasterio.windows import Window
 from shapely.geometry import box
 
 REPO_DIR = Path(__file__).resolve().parent.parent
+DATA_DIR = Path(os.environ.get("GAUGE_DATA_DIR", REPO_DIR / "gauge_tables"))
 V3_DIR = Path(os.environ.get("GEOGLOWS_V3_DIR", REPO_DIR.parent / "gauge-paper" / "hydrography_v3"))
 TRANSLATION = REPO_DIR / "out" / "fig05_river_translation.csv"
-KOPPEN_TIF = REPO_DIR / "data" / "koppen_geiger" / "1991_2020" / "koppen_geiger_0p00833333.tif"
+KOPPEN_TIF = DATA_DIR / "koppen_geiger" / "1991_2020" / "koppen_geiger_0p00833333.tif"
 FULL_DIR = REPO_DIR / "out" / "fig05_watersheds_v3"
 OUTPUT = REPO_DIR / "out" / "fig05_watersheds.parquet"
 

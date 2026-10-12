@@ -6,3 +6,4 @@ gauge_tables
 *.log
 *.synctex.gz
 __pycache__/
+*.tif

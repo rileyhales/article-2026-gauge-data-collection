@@ -1,7 +1,7 @@
 """Figure 4: share of gauges vs share of land area in each Köppen climate group.
 
 Reads:  <GAUGE_DATA_DIR>/master_catalog_with_metadata.csv
-        data/koppen_geiger/1991_2020/koppen_geiger_0p00833333.tif
+        <GAUGE_DATA_DIR>/koppen_geiger/1991_2020/koppen_geiger_0p00833333.tif
 Writes: latex/figures/fig04_koppen_climate.png
 
 GAUGE_DATA_DIR defaults to the repo's gauge_tables/ folder.
@@ -20,7 +20,7 @@ from rasterio.windows import Window
 
 REPO_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = Path(os.environ.get("GAUGE_DATA_DIR", REPO_DIR / "gauge_tables"))
-KOPPEN_TIF = REPO_DIR / "data" / "koppen_geiger" / "1991_2020" / "koppen_geiger_0p00833333.tif"
+KOPPEN_TIF = DATA_DIR / "koppen_geiger" / "1991_2020" / "koppen_geiger_0p00833333.tif"
 OUTPUT = REPO_DIR / "latex" / "figures" / "fig04_koppen_climate.png"
 
 # Main Köppen groups and the class numbers (legend.txt) that belong to each
