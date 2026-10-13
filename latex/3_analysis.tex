@@ -3,7 +3,7 @@
 % [Word comment] (on "36,000") This can't be right, but this was using Yubin's
 % old table that had public data marked and using only public data. However in
 % the new table we don't have lat/lon corrdinates for this many gauges show
-The dataset consists of over 37,000 gauges. The dataset contains data from 135 countries based on the World Bank country boundaries. We analyzed the geographic location of the gauges and present an analysis to summarize where the data are primarily available and where they are missing. The figure below shows the location of 36,000 of the gauges. These are gauges that are publicly available and therefore can be published without violating privacy issues. The map marks which stations for discharge versus stage data.
+The dataset consists of over 37,000 gauges. The dataset contains data from 126 countries based on the World Bank country boundaries. We analyzed the geographic location of the gauges and present an analysis to summarize where the data are primarily available and where they are missing. The figure below shows the location of almost 36,000 of the gauges. The map marks which stations for discharge versus stage data.
 
 \begin{figure}[!htbp]
 \centering
@@ -14,7 +14,9 @@ The dataset consists of over 37,000 gauges. The dataset contains data from 135 c
 
 Examining the figure shows some interesting patterns in spatial biases around the world. This dataset does not have much data in the Nile River Basin. While we know data exists in that area, data sharing protocols prevent it from being included in global datasets. We also note that as expected there are very few gauges in areas that are primarily desert including in the Sahara Desert, the Arabian desert, Patagonia, and the Australian desert. We also note from this figure that certain areas of the world, such as Europe, the United States and Canada, are much more densely covered than other areas. The United States contains over 11,000 gauges making up about a third of the dataset.
 
-In the dataset, there are 129 countries without any gauge data. However, many of the countries are smaller islands such as Maldives, a land locked but small country such as Vatican City, or a small territory owned by another country such as Guam. The following figure shows the area size of countries. Many of the countries are smaller than the United States state of Rhode Island which is a little smaller than 3000 square kilometers. Therefore, while the number of countries missing gauges is high, the amount of area is much smaller.
+In the dataset, there are 113 countries and territories without any gauge data. However, many of the countries are smaller islands such as Maldives, a land locked but small country such as Vatican City, or a small territory owned by another country such as Guam. The following figure shows the area size of countries. Many of the countries are smaller than the United States state of Rhode Island which is a little smaller than 3000 square kilometers. Therefore, while the number of countries missing gauges is high, the amount of area is much smaller.
+
+The following figure shows the sizes of countries with no gauges compared with the sizes of countries with gauges. It is graphed on a log scale to show all the countries. The figure shows that most of the small countries do not have gauges, but large countries tend to have gauges. This demonstrates that even while the number of countries and territories without gauges is high, the amount of area is much smaller. The figure also shows that there are some large countries that do not have gauges, such as Greenland, Western Sahara, and Libya.
 
 \begin{figure}[!htbp]
 \centering
@@ -23,20 +25,19 @@ In the dataset, there are 129 countries without any gauge data. However, many of
 \label{fig:country-areas}
 \end{figure}
 
-We examined to see if the countries with data were biased at all based on income levels. To assess this, we compared the number of gauges in each country with the country's Gross National Income (GNI) per capita, as reported by the World Bank. We selected 2019 for the analysis because it provided the most complete and recent dataset available. Using an earlier year also ensured that any potential relationship between GNI and gauge distribution could be more clearly identified, given that our dataset does not include data from the most recent years. Three countries---Venezuela, Monaco, and Liechtenstein---contained gauges in our dataset but lacked GNI values, and therefore their gauges were excluded from classification. We also used information on the size of the countries and populations based on World Bank data. Gauge locations were assigned to countries using the World Bank's country shapefile, which was selected to ensure consistency with the GNI and population datasets.
+We examined to see if the countries with data were biased at all based on income levels. The World Bank calssifies countries on income levels based on Gross National Income (GNI) per capita. The World Bank classifies countries as low income, lower middle income, upper middle income and high income. This analysis is redone every year. For this paper, we used the given classifications for fiscal year 2025 which were made effective July 1, 2026.The following table shows the thresholds for each of these categories.
 
-After obtaining the GNI, we used it to classify countries as low income, lower middle income, upper middle income and high income in accordance with the World Bank's categories for these categories. This allowed us to see how the gauges were spread across higher and lower income areas.
 
 \begin{table}[!htbp]
 \centering
-\caption{Gross National Income (GNI) split into 4 categories in accordance with World Bank requirements.}
+\caption{World Bank income classification thresholds for FY2027 (GNI per capita in 2025, current US\$, Atlas method).}
 \label{tab:gni-categories}
 \begin{tabular}{@{}ll@{}}
 \toprule
-Low Income & GNI $<$ \$1035 \\
-Lower Middle Income & \$1036 $<$ GNI $<$ \$4085 \\
-Upper Middle Income & \$4086 $<$ GNI $<$ \$12615 \\
-High Income & GNI $>$ \$12615 \\
+Low Income & GNI $\leq$ \$1,175 \\
+Lower Middle Income & \$1,176 -- \$4,635 \\
+Upper Middle Income & \$4,636 -- \$14,375 \\
+High Income & GNI $>$ \$14,375 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -50,16 +51,8 @@ We also examined each income group for how many people and area there were on av
 \caption{Average gauge counts, population, and area per gauge by income group, excluding the United States.}
 \label{tab:income-groups}
 \small
-\begin{tabular}{@{}lC{0.14\textwidth}C{0.14\textwidth}C{0.14\textwidth}C{0.14\textwidth}@{}}
-\toprule
-Income Group & Average gauges per country & Avg 1000 people per gauge & Avg 1000 km\textsuperscript{2} per gauge & Number of countries with gauges \\
-\midrule
-Low Income & 13.23 & 1738.81 & 42.95 & 16 \\
-Lower Middle Income & 35.51 & 1988.91 & 16.84 & 33 \\
-Upper Middle Income & 103.83 & 432.94 & 23.23 & 34 \\
-High Income & 232.42 & 55.08 & 5.18 & 37 \\
-\bottomrule
-\end{tabular}
+% Generated by figures_src/tab_income_groups.py
+\input{tables/tab_income_groups}
 \end{table}
 
 The following map shows the countries that are missing data grouped by incomes based on the GNI. There are countries with higher income that have no gauges in the dataset, but many of these countries have explanations for why no data may exist. Iceland is a smaller island and therefore does not have any major rivers. Finland and Norway similarly do not have many large rivers due to the coastlines, and both are north with lots of snow. The map shows that many of the countries missing data are in Northern Africa and Western Asia.
@@ -95,7 +88,14 @@ The gauges in the dataset are matched with RFS streams. (\emph{Describe in more 
 \label{fig:gauge-coverage}
 \end{figure}
 
-The map highlights
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/fig06_large_river_coverage.png}
+\caption{Rivers draining more than 50,000~km\textsuperscript{2}, coloured by whether a gauge is at or downstream of them (the same rule as Figure~\ref{fig:gauge-coverage}). Line width grows with upstream area.}
+\label{fig:large-river-coverage}
+\end{figure}
+
+These figures show that there are a couple major rivers that either have no gauges in the watershed or only have it on upstream segments. The Nile, Volga, Tigis-Euphrates, and Indus are all rivers that do not have gauges on their main tributaries. 
 
 \emph{Slice and dice fifty ways.}
 
@@ -157,7 +157,7 @@ This persistent underrepresentation underscores the severe temporal and spatial 
 
 \begin{figure}[!htbp]
 \centering
-\includegraphics[width=\textwidth]{figures/fig06_active_gauges_by_region.png}
+\includegraphics[width=\textwidth]{figures/fig07_active_gauges_by_region.png}
 \caption{Number of active gauges per region from 1930 to the latest year with available data.}
 \label{fig:active-gauges}
 \end{figure}
@@ -166,7 +166,7 @@ The decadal heatmap of active gauges (Figure~\ref{fig:decadal-heatmap}) by regio
 
 \begin{figure}[!htbp]
 \centering
-\includegraphics[width=\textwidth]{figures/fig07_decadal_heatmap.png}
+\includegraphics[width=\textwidth]{figures/fig08_decadal_heatmap.png}
 \caption{Decadal heatmap of active gauges by region.}
 \label{fig:decadal-heatmap}
 \end{figure}
@@ -175,7 +175,7 @@ Figure~\ref{fig:starts-ends} illustrates the annual number of gauges beginning a
 
 \begin{figure}[!htbp]
 \centering
-\includegraphics[width=\textwidth]{figures/fig08_gauge_starts_ends.png}
+\includegraphics[width=\textwidth]{figures/fig09_gauge_starts_ends.png}
 \caption{Annual number of gauges beginning and ending operation, 1930--2024.}
 \label{fig:starts-ends}
 \end{figure}
@@ -190,7 +190,7 @@ Figure~\ref{fig:record-duration} shows the distribution of gauge record duration
 
 \begin{figure}[!htbp]
 \centering
-\includegraphics[width=\textwidth]{figures/fig09_record_duration.png}
+\includegraphics[width=\textwidth]{figures/fig10_record_duration.png}
 \caption{Distribution of gauge record durations by region, expressed as a percentage of stations within each duration category.}
 \label{fig:record-duration}
 \end{figure}
@@ -203,7 +203,7 @@ Figure~\ref{fig:missing-data} presents the distribution of missing data percenta
 % [Word comment] Asia and South Asia separate??
 \begin{figure}[!htbp]
 \centering
-\includegraphics[width=\textwidth]{figures/fig10_missing_data.png}
+\includegraphics[width=\textwidth]{figures/fig11_missing_data.png}
 \caption{Distribution of missing data percentages across gauge records by region.}
 \label{fig:missing-data}
 \end{figure}
