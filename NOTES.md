@@ -111,6 +111,29 @@ Issues found in `master_catalog_with_metadata.csv` (37,528 rows, checked 2026-10
   It is kept out of the repo (`out/` is gitignored) because the river IDs show where the gauges
   are, including private ones; anyone building Figure 5 regenerates it with that script.
 
+## ⚠️ No USGS gauges on large rivers (Figure 5 gaps in the Mississippi), checked 2026-10-13
+- All 7,599 USGS rows (`archive-gauge-data/jorge_20250909/North_America/USA`) drain at most
+  ~55,500 km² (v2 upstream area; 99th percentile 37,000 km²). Looks like the USGS list was cut off
+  at ~50,000 km² drainage area where it was assembled. Unknown why; ask who built the archive.
+- So the catalog has no gauges on the Mississippi below Minnesota, the Missouri below Montana, the
+  Ohio, or the Arkansas below Colorado. No St. Louis, Vicksburg, Hermann or Metropolis.
+  (`gauge_id` 6934500 is a GRDC station in Denmark, not Missouri River at Hermann.)
+  The Caravan rows near these rivers are tributaries or copies of USGS rows.
+- Effect on Figure 5: the largest gauged river in the Mississippi drains 49,103 km², and none of the
+  3,892 v3 reaches draining > 50,000 km² is covered. The white streaks are the land draining straight
+  into the main stems (Mississippi, Missouri, Platte, Kansas, Arkansas, Red, Ohio, Tennessee, ...).
+  Coverage of the Mississippi basin is 78.8%.
+- The figure is correct for the catalog: the merged polygon is within 1.3% of the summed catchment
+  areas. The gaps come from the catalog, not the method.
+- Other big US rivers are also uncovered at their main gauges: Columbia (The Dalles), Snake,
+  Susquehanna (Harrisburg), Sacramento (Freeport), Yukon. Colorado at Lees Ferry and Rio Grande at
+  El Paso are covered only by gauges further downstream (outside the USGS list).
+- The old `master_catalog.csv` (original Figure 5) has the same 7,599 USGS rows, the same ceiling, and
+  the same 78.8% Mississippi coverage (on v2). The original figure had the same gaps; at its low
+  resolution, the thick dark outlines made them look like lines.
+- The local copy `../gauge-paper/master_catalog_with_metadata.csv` gives exactly the same gauges per
+  river as `out/fig05_river_translation.csv`, so it matches what Figure 5 was built from.
+
 ## Other data quality issues
 - 3 rows have Vietnamese province names in ISO_A3 instead of `VNM`.
 
